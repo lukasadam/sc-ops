@@ -4,6 +4,7 @@ import anndata as ad
 import numpy as np
 import pandas as pd
 import scanpy as sc
+import delnx as dx
 from typing import Literal,  TypeAlias
 
 Method: TypeAlias = Literal[
@@ -13,10 +14,10 @@ Method: TypeAlias = Literal[
     "logreg"
 ]
 
-def run_within_de(
+def run_de_sc(
     adata: ad.AnnData, groupby: str, method: Method | None = "t-test_overestim_var"
 ) -> pd.DataFrame:
-    """Run differential expression within groups in the AnnData object.
+    """Run differential expression using scanpy's rank_genes_groups function.
 
     Parameters:
     ----------
@@ -54,6 +55,59 @@ def run_within_de(
         }
     )
     return de_results
+
+def run_de_dlx(
+    adata: ad.AnnData, group_key: str = "group", layer: str | None = None, method: str = "negbinom"
+) -> pd.DataFrame:
+    """Run differential expression using delnx's function
+
+    Parameters:
+    ----------
+    adata : AnnData
+        Input AnnData object.
+    group_key : str, default="group"
+        Key in adata.obs that identifies the groups or conditions to compare.
+    layer : str or None, default=None
+        Layer in adata to use for pseudobulk aggregation. If None, uses adata.X.
+    
+    Returns:
+    -------
+    pd.DataFrame
+        A DataFrame containing the differential expression results.
+    """
+    # Run DE analysis 
+    de_results = []
+    for group in adata.obs[group_key].unique():
+        # Create comparison column for the current group vs all others
+        adata.obs["comparison"] = (adata.obs[group_key] == group).astype(int)
+        # Run DE analysis using delnx
+        print("Running DE for group:", group)
+        result = dx.tl.de(
+                adata,
+                condition_key="comparison",
+                mode="1_vs_1",
+                reference=("rest", group),
+                method=method,
+                layer=layer
+        )
+        # Add group information to the result
+        result["group"] = group
+        # Collect results
+        de_results.append(result)
+    # Concatenate results from all groups into a single DataFrame
+    de_results_df = pd.concat(de_results, ignore_index=True)
+    # Only keep relevant columns i.e
+    de_results_df = de_results_df[["feature", "log2fc", "coef", "pval", "padj", "group"]]
+    # Rename columns for consistency
+    de_results_df = de_results_df.rename(
+        columns={
+            "log2fc": "logFC",
+            "coef": "coef",
+            "pval": "pval",
+            "padj": "padj",
+        }
+    )
+    return de_results_df
 
 
 def get_de_genes(
