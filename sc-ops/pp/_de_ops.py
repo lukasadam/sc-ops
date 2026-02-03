@@ -14,7 +14,7 @@ Method: TypeAlias = Literal[
     "logreg"
 ]
 
-def run_de_sc(
+def run_de_scanpy(
     adata: ad.AnnData, groupby: str, method: Method | None = "t-test_overestim_var"
 ) -> pd.DataFrame:
     """Run differential expression using scanpy's rank_genes_groups function.
@@ -56,7 +56,7 @@ def run_de_sc(
     )
     return de_results
 
-def run_de_dlx(
+def run_de_delnx(
     adata: ad.AnnData, group_key: str = "group", layer: str | None = None, method: str = "negbinom"
 ) -> pd.DataFrame:
     """Run differential expression using delnx's function
