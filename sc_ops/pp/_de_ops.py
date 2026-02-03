@@ -6,6 +6,7 @@ import pandas as pd
 import scanpy as sc
 import delnx as dx
 from typing import Literal,  TypeAlias
+from sc_ops.pp._utils import check_raw_counts
 
 Method: TypeAlias = Literal[
     "t-test",
@@ -75,11 +76,21 @@ def run_de_delnx(
     pd.DataFrame
         A DataFrame containing the differential expression results.
     """
+    # Ensure group_key exists in adata.obs
+    if group_key not in adata.obs:
+        raise ValueError(f"{group_key} not found in adata.obs")
+    # Check that data contains raw counts
+    check_raw_counts(adata, layer=layer)
+    
+    # Convert group_key to string type
+    adata.obs[group_key] = adata.obs[group_key].astype(str)
     # Run DE analysis 
     de_results = []
     for group in adata.obs[group_key].unique():
         # Create comparison column for the current group vs all others
         adata.obs["comparison"] = (adata.obs[group_key] == group).astype(int)
+        # Make 'rest' the label for the reference group
+        adata.obs["comparison"] = adata.obs["comparison"].map({1: group, 0: "rest"})
         # Run DE analysis using delnx
         print("Running DE for group:", group)
         result = dx.tl.de(
@@ -94,6 +105,8 @@ def run_de_delnx(
         result["group"] = group
         # Collect results
         de_results.append(result)
+    # Remove temporary comparison column
+    adata.obs.drop(columns=["comparison"], inplace=True)
     # Concatenate results from all groups into a single DataFrame
     de_results_df = pd.concat(de_results, ignore_index=True)
     # Only keep relevant columns i.e

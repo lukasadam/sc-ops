@@ -3,7 +3,7 @@
 import anndata as ad
 import pandas as pd
 import scanpy as sc
-from _utils import group_by_max, minmax
+from sc_ops.pp._utils import group_by_max, minmax
 from typing import Literal, TypeAlias
 
 AggFunc: TypeAlias = Literal["mean", "sum", "median", "count_nonzero"]
@@ -103,10 +103,10 @@ def aggregate(adata: ad.AnnData, groupby: str, method: AggFunc | None = "mean") 
     adata_agg = sc.get.aggregate(adata, by=groupby, func=method) # pyright: ignore[reportArgumentType]
     # Convert the aggregated AnnData to a DataFrame
     mat_agg = pd.DataFrame(
-        adata_agg.X, index=adata_agg.obs_names, columns=adata_agg.var_names
+        adata_agg.layers[method], index=adata_agg.obs_names, columns=adata_agg.var_names
     )
     # Apply min-max scaling per gene
     mat_agg = minmax(mat_agg, axis=0)
     # Order DataFrame by group of max value
-    mat_agg = group_by_max(mat_agg)
+    mat_agg = group_by_max(mat_agg.T)
     return mat_agg

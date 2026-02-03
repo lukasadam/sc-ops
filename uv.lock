@@ -1467,6 +1467,7 @@ dependencies = [
     { name = "pyright" },
     { name = "scanpy", version = "1.11.5", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.12'" },
     { name = "scanpy", version = "1.12", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.12'" },
+    { name = "scipy" },
 ]
 
 [package.dev-dependencies]
@@ -1483,6 +1484,7 @@ requires-dist = [
     { name = "pandas", specifier = ">=2.3.3" },
     { name = "pyright", specifier = ">=1.1.408" },
     { name = "scanpy", specifier = ">=1.11.5" },
+    { name = "scipy", specifier = "==1.15.3" },
 ]
 
 [package.metadata.requires-dev]
