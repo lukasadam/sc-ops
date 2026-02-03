@@ -1,11 +1,21 @@
 # Differential expression operations for single-cell data
 
+import anndata as ad
 import numpy as np
 import pandas as pd
 import scanpy as sc
-import anndata as ad
+from typing import Literal,  TypeAlias
 
-def run_within_de(adata: ad.AnnData, groupby: str, method: str = 't-test_overestim_var') -> pd.DataFrame:
+Method: TypeAlias = Literal[
+    "t-test",
+    "t-test_overestim_var",
+    "wilcoxon",
+    "logreg"
+]
+
+def run_within_de(
+    adata: ad.AnnData, groupby: str, method: Method | None = "t-test_overestim_var"
+) -> pd.DataFrame:
     """Run differential expression within groups in the AnnData object.
 
     Parameters:
@@ -25,12 +35,26 @@ def run_within_de(adata: ad.AnnData, groupby: str, method: str = 't-test_overest
     # Perform differential expression analysis
     sc.tl.rank_genes_groups(adata, groupby=groupby, method=method)
     # Collect results
-    de_results = pd.concat([sc.get.rank_genes_groups_df(adata, group).assign(group=group) for group in adata.obs[groupby].unique()], ignore_index=True)
+    de_results = pd.concat(
+        [
+            sc.get.rank_genes_groups_df(adata, group).assign(group=group)
+            for group in adata.obs[groupby].unique()
+        ],
+        ignore_index=True,
+    )
     # Drop scores from de_results
-    de_results = de_results.drop(columns=['scores'], errors='ignore')
+    de_results = de_results.drop(columns=["scores"], errors="ignore")
     # Unify column names
-    de_results = de_results.rename(columns={'names': 'feature', 'logfoldchanges': 'logFC', 'pvals_adj': 'padj', 'pvals': 'pval'})
+    de_results = de_results.rename(
+        columns={
+            "names": "feature",
+            "logfoldchanges": "logFC",
+            "pvals_adj": "padj",
+            "pvals": "pval",
+        }
+    )
     return de_results
+
 
 def get_de_genes(
     df: pd.DataFrame,
@@ -51,8 +75,8 @@ def get_de_genes(
         DataFrame containing differential expression results.
     group_key : str, default="group"
         Column indicating the group or condition.
-    effect_key : str, default="log2fc"
-        Column with effect size values (e.g., log2 fold change, coefficient).
+    effect_key : str, default="logFC"
+        Column with effect size values (e.g., log fold change, coefficient).
     pval_key : str, default="pval"
         Column with p-values.
     feature_key : str, default="feature"
@@ -83,8 +107,7 @@ def get_de_genes(
     df_labeled = df.copy()
 
     # Add significance labels
-    log_pval = -np.log10(df_labeled[pval_key])
-    df_labeled["-log10(pval)"] = np.clip(log_pval, a_min=None, a_max=50)
+    df_labeled["-log10(pval)"] = -np.log10(df_labeled[pval_key])
 
     # Determine significance based on p-value and effect size thresholds
     sig_pval_mask = df_labeled[pval_key] < pval_thresh
@@ -104,8 +127,8 @@ def get_de_genes(
         down_df = sub_df[sub_df["significant"] == "Down"]
 
         if top_n is not None:
-            up_df = up_df.nlargest(top_n, effect_key)
-            down_df = down_df.nsmallest(top_n, effect_key)
+            up_df = up_df.nlargest(top_n, effect_key) # pyright: ignore[reportArgumentType]
+            down_df = down_df.nsmallest(top_n, effect_key) # pyright: ignore[reportArgumentType]
 
         result[group] = {
             "up": up_df[feature_key].tolist(),

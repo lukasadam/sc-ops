@@ -1,5 +1,5 @@
 # Computes the tissue-specificity score (Tau) for gene expression data.
-# The tissue specificity index tau is a metric, ranging from 0 to 1, that 
+# The tissue specificity index tau is a metric, ranging from 0 to 1, that
 # quantifies how specifically a gene is expressed across different tissues.
 # A value near 0 indicates ubiquitous expression, while a value near 1 indicates
 # high tissue specificity.
@@ -9,13 +9,14 @@
 # where x_i is the expression level in tissue i, max(x) is the maximum expression level
 # across all tissues for that gene, and n is the number of tissues.
 
-import numpy as np as np
+import numpy as np
 import pandas as pd
+
 
 def tau_score(expression_data: pd.DataFrame) -> pd.Series:
     """
     Calculate the Tau tissue-specificity score for each gene.
-    
+
 
     Parameters:
     ----------

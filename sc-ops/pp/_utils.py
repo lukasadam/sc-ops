@@ -1,5 +1,6 @@
 import pandas as pd
 
+
 def group_by_max(expr: pd.DataFrame) -> pd.DataFrame:
     """Order genes by group of max value.
 
@@ -19,6 +20,7 @@ def group_by_max(expr: pd.DataFrame) -> pd.DataFrame:
         ordered.extend(expr[max_group == group].index.tolist())
     return expr.loc[ordered]
 
+
 def minmax(df: pd.DataFrame, axis=1, eps=1e-8) -> pd.DataFrame:
     """Min-max normalize a DataFrame.
 
@@ -36,4 +38,6 @@ def minmax(df: pd.DataFrame, axis=1, eps=1e-8) -> pd.DataFrame:
     pd.DataFrame
         Min-max normalized DataFrame.
     """
-    return (df - df.min(axis=axis, keepdims=True)) / (df.max(axis=axis, keepdims=True) - df.min(axis=axis, keepdims=True) + eps)
+    return (df - df.min(axis=axis, keepdims=True)) / (
+        df.max(axis=axis, keepdims=True) - df.min(axis=axis, keepdims=True) + eps
+    )

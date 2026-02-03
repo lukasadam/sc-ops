@@ -4,6 +4,7 @@ import decoupler as dc
 import numpy as np
 from anndata import AnnData
 
+
 def pseudobulk(
     adata: AnnData,
     sample_key: str = "batch",
@@ -56,7 +57,7 @@ def pseudobulk(
         AnnData object containing the pseudobulk data. The structure changes from
         cell-level to sample-level, with each row representing a pseudobulk sample.
         Original sample and group identifiers are preserved in the observations.
-    
+
     """
     # Create pseudoreplicates if requested
     if n_pseudoreps is not None:
@@ -67,7 +68,9 @@ def pseudobulk(
             replace=True,
         )
         # Create unique identifiers for each pseudoreplicate by combining sample ID with replicate number
-        adata.obs["psbulk_replicate"] = adata.obs[sample_key].astype(str) + "_" + pseudoreps.astype(str)
+        adata.obs["psbulk_replicate"] = (
+            adata.obs[sample_key].astype(str) + "_" + pseudoreps.astype(str)
+        )
     else:
         # Use original sample IDs if no pseudoreplicates requested
         adata.obs["psbulk_replicate"] = adata.obs[sample_key].astype(str)

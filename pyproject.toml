@@ -11,3 +11,8 @@ dependencies = [
     "pandas>=2.3.3",
     "scanpy>=1.11.5",
 ]
+
+[dependency-groups]
+dev = [
+    "pyright>=1.1.408",
+]
