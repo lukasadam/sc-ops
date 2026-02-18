@@ -113,3 +113,32 @@ def aggregate(
     # Order DataFrame by group of max value
     mat_agg = group_by_max(mat_agg.T)
     return mat_agg
+
+
+def lognorm(adata: ad.AnnData, target_sum: float = 1e4) -> ad.AnnData:
+    """
+    Log-normalize the data in an AnnData object.
+
+    Parameters:
+    ----------
+    adata : AnnData
+        The annotated data matrix to be log-normalized.
+    target_sum : float, optional
+        The target sum for normalization. Default is 1e4.
+
+    Returns:
+    -------
+    AnnData
+        The log-normalized annotated data matrix.
+    """
+    # First make copy of adata to avoid modifying the original object
+    adata = adata.copy()
+    # Check whether adata.raw is not None
+    if adata.raw is None:
+        adata.raw = adata.copy()
+        adata.layers["counts"] = adata.X.copy()
+    # Normalize total counts per cell and log-transform the data
+    sc.pp.normalize_total(adata, target_sum=target_sum)
+    sc.pp.log1p(adata)
+    adata.layers["lognorm"] = adata.X.copy()
+    return adata

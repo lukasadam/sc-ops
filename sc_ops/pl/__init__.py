@@ -1,1 +1,1 @@
-from _settings import *
+from ._settings import *  # noqa: F401,F403

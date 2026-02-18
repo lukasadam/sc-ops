@@ -10,6 +10,7 @@ dependencies = [
     "delnx>=0.2.3",
     "numpy>=2.2.6",
     "pandas>=2.3.3",
+    "pybiomart>=0.2.0",
     "pyright>=1.1.408",
     "scanpy>=1.11.5",
     "scipy==1.15.3",
