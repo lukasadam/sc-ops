@@ -15,6 +15,41 @@ DimReduceMethod: TypeAlias = Literal["pca", "umap"]
 AggFunc: TypeAlias = Literal["mean", "sum", "median", "count_nonzero"]
 
 
+def merge_adatas(
+    adatas: list[ad.AnnData],
+    datasets_names: list[str],
+    join: str = "inner",
+    batch_key: str = "batch",
+) -> ad.AnnData:
+    """Merge multiple AnnData objects into a single AnnData with batch annotation.
+
+    Parameters
+    ----------
+    adatas
+        List of AnnData objects to merge.
+    datasets_names
+        List of names corresponding to each AnnData in `adatas`. These will be used as batch labels.
+    join
+        How to handle genes (var_names) across adatas. Options:
+        - "inner": Keep only genes present in all adatas (intersection).
+        - "outer": Keep all genes present in any adata (union).
+        - "left": Keep genes present in the first adata only.
+    batch_key
+        The name of the column in `adata.obs` to store batch labels.
+
+    Returns
+    -------
+    AnnData
+        A single AnnData object containing all merged datasets with batch annotation.
+
+    """
+    # Now we can concatenate them into a single AnnData object
+    adata = adatas[0].concatenate(
+        adatas[1:], join=join, batch_key=batch_key, batch_categories=datasets_names
+    )
+    return adata
+
+
 def clean_genes(
     adata: ad.AnnData,
     min_cells: int = 3,
