@@ -1,4 +1,4 @@
-from ._adata_ops import aggregate, clean_genes, lognorm, preprocess, merge_adatas
+from ._adata_ops import aggregate, clean_genes, lognorm, merge_adatas, preprocess
 from ._de_ops import get_de_genes, run_de_delnx, run_de_scanpy
 from ._map_orthologs import get_orthologs, map_genes_to_orthologs
 from ._settings import import_settings
