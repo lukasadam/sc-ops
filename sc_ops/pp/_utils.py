@@ -2,11 +2,12 @@
 
 import numpy as np
 import pandas as pd
-import scipy.sparse as sp
+
 
 def _sum_is_integer(x, atol=1e-6):
     """Check whether a sum can be safely interpreted as integer."""
     return np.isclose(x, np.round(x), atol=atol)
+
 
 def check_raw_counts(adata, layer=None):
     """
@@ -31,6 +32,7 @@ def check_raw_counts(adata, layer=None):
             f"Data in {location} must be raw counts (integers) for delnx. "
             f"Detected non-integer sum: {data_sum}"
         )
+
 
 def group_by_max(expr: pd.DataFrame) -> pd.DataFrame:
     """Order genes by group of max value.

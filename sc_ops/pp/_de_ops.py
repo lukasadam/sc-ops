@@ -5,15 +5,11 @@ import numpy as np
 import pandas as pd
 import scanpy as sc
 import delnx as dx
-from typing import Literal,  TypeAlias
+from typing import Literal, TypeAlias
 from sc_ops.pp._utils import check_raw_counts
 
-Method: TypeAlias = Literal[
-    "t-test",
-    "t-test_overestim_var",
-    "wilcoxon",
-    "logreg"
-]
+Method: TypeAlias = Literal["t-test", "t-test_overestim_var", "wilcoxon", "logreg"]
+
 
 def run_de_scanpy(
     adata: ad.AnnData, groupby: str, method: Method | None = "t-test_overestim_var"
@@ -57,8 +53,12 @@ def run_de_scanpy(
     )
     return de_results
 
+
 def run_de_delnx(
-    adata: ad.AnnData, group_key: str = "group", layer: str | None = None, method: str = "negbinom"
+    adata: ad.AnnData,
+    group_key: str = "group",
+    layer: str | None = None,
+    method: str = "negbinom",
 ) -> pd.DataFrame:
     """Run differential expression using delnx's function
 
@@ -70,7 +70,7 @@ def run_de_delnx(
         Key in adata.obs that identifies the groups or conditions to compare.
     layer : str or None, default=None
         Layer in adata to use for pseudobulk aggregation. If None, uses adata.X.
-    
+
     Returns:
     -------
     pd.DataFrame
@@ -81,10 +81,10 @@ def run_de_delnx(
         raise ValueError(f"{group_key} not found in adata.obs")
     # Check that data contains raw counts
     check_raw_counts(adata, layer=layer)
-    
+
     # Convert group_key to string type
     adata.obs[group_key] = adata.obs[group_key].astype(str)
-    # Run DE analysis 
+    # Run DE analysis
     de_results = []
     for group in adata.obs[group_key].unique():
         # Create comparison column for the current group vs all others
@@ -94,12 +94,12 @@ def run_de_delnx(
         # Run DE analysis using delnx
         print("Running DE for group:", group)
         result = dx.tl.de(
-                adata,
-                condition_key="comparison",
-                mode="1_vs_1",
-                reference=("rest", group),
-                method=method,
-                layer=layer
+            adata,
+            condition_key="comparison",
+            mode="1_vs_1",
+            reference=("rest", group),
+            method=method,
+            layer=layer,
         )
         # Add group information to the result
         result["group"] = group
@@ -110,7 +110,9 @@ def run_de_delnx(
     # Concatenate results from all groups into a single DataFrame
     de_results_df = pd.concat(de_results, ignore_index=True)
     # Only keep relevant columns i.e
-    de_results_df = de_results_df[["feature", "log2fc", "coef", "pval", "padj", "group"]]
+    de_results_df = de_results_df[
+        ["feature", "log2fc", "coef", "pval", "padj", "group"]
+    ]
     # Rename columns for consistency
     de_results_df = de_results_df.rename(
         columns={
@@ -194,8 +196,8 @@ def get_de_genes(
         down_df = sub_df[sub_df["significant"] == "Down"]
 
         if top_n is not None:
-            up_df = up_df.nlargest(top_n, effect_key) # pyright: ignore[reportArgumentType]
-            down_df = down_df.nsmallest(top_n, effect_key) # pyright: ignore[reportArgumentType]
+            up_df = up_df.nlargest(top_n, effect_key)  # pyright: ignore[reportArgumentType]
+            down_df = down_df.nsmallest(top_n, effect_key)  # pyright: ignore[reportArgumentType]
 
         result[group] = {
             "up": up_df[feature_key].tolist(),

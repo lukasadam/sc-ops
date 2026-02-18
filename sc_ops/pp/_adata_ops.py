@@ -8,6 +8,7 @@ from typing import Literal, TypeAlias
 
 AggFunc: TypeAlias = Literal["mean", "sum", "median", "count_nonzero"]
 
+
 def clean_genes(
     adata: ad.AnnData,
     min_cells: int = 3,
@@ -81,7 +82,9 @@ def clean_genes(
     return adata
 
 
-def aggregate(adata: ad.AnnData, groupby: str, method: AggFunc | None = "mean") -> pd.DataFrame:
+def aggregate(
+    adata: ad.AnnData, groupby: str, method: AggFunc | None = "mean"
+) -> pd.DataFrame:
     """
     Aggregate single cell data by specified grouping.
 
@@ -100,7 +103,7 @@ def aggregate(adata: ad.AnnData, groupby: str, method: AggFunc | None = "mean") 
         The aggregated annotated data matrix.
     """
     # Perform aggregation using scanpy's built-in function
-    adata_agg = sc.get.aggregate(adata, by=groupby, func=method) # pyright: ignore[reportArgumentType]
+    adata_agg = sc.get.aggregate(adata, by=groupby, func=method)  # pyright: ignore[reportArgumentType]
     # Convert the aggregated AnnData to a DataFrame
     mat_agg = pd.DataFrame(
         adata_agg.layers[method], index=adata_agg.obs_names, columns=adata_agg.var_names
