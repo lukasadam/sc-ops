@@ -1641,6 +1641,7 @@ dependencies = [
     { name = "pyright" },
     { name = "scanpy", version = "1.11.5", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.12'" },
     { name = "scanpy", version = "1.12", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.12'" },
+    { name = "scikit-learn" },
     { name = "scipy" },
 ]
 
@@ -1663,6 +1664,7 @@ requires-dist = [
     { name = "pybiomart", specifier = ">=0.2.0" },
     { name = "pyright", specifier = ">=1.1.408" },
     { name = "scanpy", specifier = ">=1.11.5" },
+    { name = "scikit-learn", specifier = ">=1.8.0" },
     { name = "scipy", specifier = "==1.15.3" },
 ]
 
