@@ -31,7 +31,15 @@ def cosine_similarity(
         Cosine similarity matrix with rows = aggregated groups of adata_source
         and columns = aggregated groups of adata_target.
     """
-
+    # Make copies to avoid modifying original AnnData objects
+    adata_source = adata_source.copy()
+    adata_target = adata_target.copy()
+    # Identify shared genes (features) between the two datasets
+    keep_genes = adata_source.var_names.intersection(adata_target.var_names)
+    # Subset to shared genes
+    adata_source = adata_source[:, keep_genes]
+    adata_target = adata_target[:, keep_genes]
+    # Aggregate to the same feature space
     mat_source = aggregate(adata_source, layer=layer)
     mat_target = aggregate(adata_target, layer=layer)
 
