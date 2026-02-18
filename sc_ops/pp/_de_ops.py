@@ -1,11 +1,13 @@
 # Differential expression operations for single-cell data
 
+from typing import Literal, TypeAlias
+
 import anndata as ad
+import delnx as dx
 import numpy as np
 import pandas as pd
 import scanpy as sc
-import delnx as dx
-from typing import Literal, TypeAlias
+
 from sc_ops.pp._utils import check_raw_counts
 
 Method: TypeAlias = Literal["t-test", "t-test_overestim_var", "wilcoxon", "logreg"]

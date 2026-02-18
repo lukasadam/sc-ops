@@ -1,11 +1,15 @@
 # Common Anndata operations for single-cell data
 
+from __future__ import annotations
+
+from typing import Literal, Optional, TypeAlias
+
 import anndata as ad
+import numpy as np
 import pandas as pd
 import scanpy as sc
+
 from sc_ops.pp._utils import group_by_max, minmax
-from typing import Literal, TypeAlias, Optional
-from __future__ import annotations
 
 DimReduceMethod: TypeAlias = Literal["pca", "umap"]
 AggFunc: TypeAlias = Literal["mean", "sum", "median", "count_nonzero"]
@@ -151,9 +155,9 @@ def dimreduce(
     method: DimReduceMethod = "umap",
     *,
     copy: bool = True,
-    n_comps: int = 50,          # PCA components
-    n_neighbors: int = 15,      # neighbors graph
-    n_pcs: Optional[int] = None # PCs to use for neighbors; default = n_comps
+    n_comps: int = 50,  # PCA components
+    n_neighbors: int = 15,  # neighbors graph
+    n_pcs: Optional[int] = None,  # PCs to use for neighbors; default = n_comps
 ) -> ad.AnnData:
     """
     Perform dimensionality reduction (PCA or UMAP) on an AnnData object.
