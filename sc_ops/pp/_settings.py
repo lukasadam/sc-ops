@@ -1,5 +1,6 @@
 from dynaconf import Dynaconf
 
+
 def import_settings(settings_files):
     """Import settings from the specified files.
 

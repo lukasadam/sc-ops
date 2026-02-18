@@ -73,6 +73,28 @@ wheels = [
 ]
 
 [[package]]
+name = "cellmapper"
+version = "0.2.5"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "anndata" },
+    { name = "docrep" },
+    { name = "numpy" },
+    { name = "packaging" },
+    { name = "pandas" },
+    { name = "rich" },
+    { name = "scanpy", version = "1.11.5", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.12'" },
+    { name = "scanpy", version = "1.12", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.12'" },
+    { name = "scikit-learn" },
+    { name = "scipy" },
+    { name = "session-info2" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/11/65/e049e796884e9c10925dbdc3f86e3e9d5c07a5296309225d4d662ae302ce/cellmapper-0.2.5.tar.gz", hash = "sha256:3af52a6dc4627a85ce71b29673df2e30fd72a0136ac5cfcd865413fcd6584a58", size = 10738586, upload-time = "2026-01-16T14:20:23.122Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/0d/26/2e08b2f664d58499dc32fb8d82f305593b2bd66af35ed9ebbb25eb1d54a6/cellmapper-0.2.5-py3-none-any.whl", hash = "sha256:da442394ce83f3455a9596809309514817c0cb34acc38f244a4ca61ef722a24b", size = 49079, upload-time = "2026-01-16T14:20:21.461Z" },
+]
+
+[[package]]
 name = "certifi"
 version = "2026.1.4"
 source = { registry = "https://pypi.org/simple" }
@@ -1609,6 +1631,7 @@ version = "0.1.0"
 source = { virtual = "." }
 dependencies = [
     { name = "anndata" },
+    { name = "cellmapper" },
     { name = "decoupler" },
     { name = "delnx" },
     { name = "dynaconf" },
@@ -1631,6 +1654,7 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "anndata", specifier = ">=0.11.4" },
+    { name = "cellmapper", specifier = ">=0.2.5" },
     { name = "decoupler", specifier = ">=2.1.4" },
     { name = "delnx", specifier = ">=0.2.3" },
     { name = "dynaconf", specifier = ">=3.2.12" },
