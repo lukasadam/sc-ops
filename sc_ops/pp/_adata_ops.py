@@ -247,3 +247,48 @@ def dimreduce(
     sc.tl.umap(adata_out)
 
     return adata_out
+
+
+def preprocess(
+    adata: ad.AnnData,
+    n_top_genes: int = 2000,
+    flavor: str = "seurat_v3",
+    batch_key: Optional[str] = None,
+    covariates: Optional[list[str]] = None,
+    layer: Optional[str] = None,
+) -> ad.AnnData:
+    """Preprocess an AnnData object for downstream analysis.
+
+    Parameters:
+    ----------
+    adata : AnnData
+        The annotated data matrix to preprocess.
+    n_top_genes : int, optional
+        Number of highly variable genes to select. Default is 2000.
+    flavor : str, optional
+        The method to use for selecting highly variable genes. Default is "seurat_v3".
+    batch_key : str, optional
+        The key in adata.obs to use for batch-aware HVG selection. Default is None (no batch-aware selection).
+    covariates : list of str, optional
+        List of covariate keys in adata.obs to regress out. Default is None (no regression).
+    layer : str, optional
+        The layer in adata to use for HVG selection. Default is None (use adata.X).
+    """
+    # Assume data is already filtered for quality control and cleaned of unwanted genes
+    # Log-normalize the data
+    adata = lognorm(adata)
+    # Select highly variable genes
+    sc.pp.highly_variable_genes(
+        adata, n_top_genes=n_top_genes, flavor=flavor, batch_key=batch_key, layer=layer
+    )
+    # Check if covariates are provided
+    if covariates is not None:
+        # Regress out effects of total counts per cell and percentage of mitochondrial genes
+        sc.pp.regress_out(adata, covariates=covariates)
+    # Scale data to unit variance and zero mean
+    sc.pp.scale(adata, max_value=10)
+    # Perform dimensionality reduction
+    adata = dimreduce(adata)
+    # Put log-normalized back
+    adata.X = adata.layers["lognorm"]
+    return adata
