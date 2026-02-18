@@ -4,8 +4,10 @@ import anndata as ad
 import pandas as pd
 import scanpy as sc
 from sc_ops.pp._utils import group_by_max, minmax
-from typing import Literal, TypeAlias
+from typing import Literal, TypeAlias, Optional
+from __future__ import annotations
 
+DimReduceMethod: TypeAlias = Literal["pca", "umap"]
 AggFunc: TypeAlias = Literal["mean", "sum", "median", "count_nonzero"]
 
 
@@ -142,3 +144,67 @@ def lognorm(adata: ad.AnnData, target_sum: float = 1e4) -> ad.AnnData:
     sc.pp.log1p(adata)
     adata.layers["lognorm"] = adata.X.copy()
     return adata
+
+
+def dimreduce(
+    adata: ad.AnnData,
+    method: DimReduceMethod = "umap",
+    *,
+    copy: bool = True,
+    n_comps: int = 50,          # PCA components
+    n_neighbors: int = 15,      # neighbors graph
+    n_pcs: Optional[int] = None # PCs to use for neighbors; default = n_comps
+) -> ad.AnnData:
+    """
+    Perform dimensionality reduction (PCA or UMAP) on an AnnData object.
+
+    Results are stored in:
+      - PCA:   adata.obsm["X_pca"] (and adata.uns["pca"])
+      - UMAP:  adata.obsm["X_umap"] (and adata.uns["umap"])
+
+    Parameters
+    ----------
+    adata
+        Input AnnData.
+    method
+        "pca" or "umap".
+    copy
+        If True, return a copy and do not modify the input object.
+    n_comps
+        Number of PCA components to compute (if needed).
+    n_neighbors
+        Number of neighbors for the kNN graph (UMAP).
+    n_pcs
+        Number of PCs to use for neighbors (UMAP). If None, uses n_comps.
+
+    Returns
+    -------
+    AnnData
+        AnnData with computed embeddings in `.obsm`.
+    """
+    adata_out = adata.copy() if copy else adata
+    n_pcs_eff = n_comps if n_pcs is None else n_pcs
+
+    def _ensure_pca() -> None:
+        if "X_pca" not in adata_out.obsm:
+            sc.tl.pca(adata_out, n_comps=n_comps)
+            return
+
+        # If PCA exists but has fewer comps than required, recompute
+        X_pca = adata_out.obsm["X_pca"]
+        if isinstance(X_pca, np.ndarray) and X_pca.shape[1] < n_comps:
+            sc.tl.pca(adata_out, n_comps=n_comps)
+
+    if method == "pca":
+        _ensure_pca()
+        return adata_out
+
+    # method == "umap"
+    _ensure_pca()
+
+    # If neighbors already exist, Scanpy will overwrite if we call sc.pp.neighbors again.
+    # That is usually fine, but you could add a flag to reuse.
+    sc.pp.neighbors(adata_out, n_neighbors=n_neighbors, n_pcs=n_pcs_eff)
+    sc.tl.umap(adata_out)
+
+    return adata_out
