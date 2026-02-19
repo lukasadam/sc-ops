@@ -9,7 +9,7 @@ import numpy as np
 import pandas as pd
 import scanpy as sc
 
-from sc_ops.pp._utils import group_by_max, minmax
+from ._utils import group_by_max, minmax
 
 DimReduceMethod: TypeAlias = Literal["pca", "umap"]
 AggFunc: TypeAlias = Literal["mean", "sum", "median", "count_nonzero"]
