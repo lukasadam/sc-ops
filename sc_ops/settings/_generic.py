@@ -12,4 +12,13 @@ import seaborn as sns
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 from pathlib import Path
-from dynaconf import Dynaconf
+from omegaconf import OmegaConf
+
+def load_settings(config_file: str):
+    # Load configuration
+    cfg = OmegaConf.load(config_file)
+
+    # resolve interpolation
+    OmegaConf.resolve(cfg)
+
+    return cfg

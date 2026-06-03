@@ -54,21 +54,23 @@ def group_by_max(expr: pd.DataFrame) -> pd.DataFrame:
     return expr.loc[ordered]
 
 
-def minmax(df: pd.DataFrame, axis=1, eps=1e-8) -> pd.DataFrame:
-    """Min-max normalize a DataFrame.
-
+def minmax_df(df: pd.DataFrame, axis: int) -> pd.DataFrame:
+    """Min-max normalize along axis.
+    
     Parameters:
     ----------
     df : pd.DataFrame
         Input DataFrame to be normalized.
     axis : int
         Axis along which to normalize (0 for columns, 1 for rows).
-    eps : float
-        Small value to avoid division by zero.
 
     Returns:
     -------
     pd.DataFrame
         Min-max normalized DataFrame.
     """
-    return (df - df.min(axis=axis)) / (df.max(axis=axis) - df.min(axis=axis) + eps)
+    mn = df.min(axis=axis)
+    mx = df.max(axis=axis)
+    denom = (mx - mn).replace(0, np.nan)
+    out = (df - mn) / denom
+    return out.fillna(0.0)
